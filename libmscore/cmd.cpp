@@ -1292,16 +1292,19 @@ void Score::upDown(bool up, UpDownMode mode)
 
             if ((oNote->pitch() != newPitch) || (oNote->tpc1() != newTpc1) || oNote->tpc2() != newTpc2) {
                   // remove accidental if present to make sure
-                  // user added accidentals are removed here.
-                  if (oNote->links()) {
-                        for (ScoreElement* e : *oNote->links()) {
-                              Note* ln = static_cast<Note*>(e);
-                              if (ln->accidental())
-                                    undoRemoveElement(ln->accidental());
+                  // user added accidentals are removed here,
+                  // unless moving by an octave
+                  if (mode != UpDownMode::OCTAVE) {
+                        if (oNote->links()) {
+                              for (ScoreElement* e : *oNote->links()) {
+                                    Note* ln = static_cast<Note*>(e);
+                                    if (ln->accidental())
+                                          undoRemoveElement(ln->accidental());
+                                    }
                               }
+                        else if (oNote->accidental())
+                              undoRemoveElement(oNote->accidental());
                         }
-                  else if (oNote->accidental())
-                        undoRemoveElement(oNote->accidental());
                   undoChangePitch(oNote, newPitch, newTpc1, newTpc2);
                   }
 
